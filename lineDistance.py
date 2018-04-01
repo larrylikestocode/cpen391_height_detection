@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import math 
 # TBD
 BEGINX = 0
 BEGINY = 250
@@ -18,26 +19,36 @@ def readImageToRGB():
 def avgRGBLine(imgRGB):
 	height = imgRGB.shape[0]
 	width  = imgRGB.shape[1]
-	avglist[];
+	avglist=[];
 
 	for x in range (0, height):
 		sumRGB = np.array((0,0,0))
 		for y in range (BEGINY,ENDY):
 			sumRGB = sumRGB + imgRGB[x][y]
 		avglist.append(sumRGB//(ENDY-BEGINY))
+	return avglist	
 
-		print("x value is the ", x)
-		print(avglist[0])
-		print(avglist[1])
-		print("")
-		time.sleep(0.5)
+# ----------------
+# take an RGB value and then return the percentage diff
+def calculatediffHelper(colorRGB1, colorRGB2):
+	r = (colorRGB1[0] + colorRGB2[0])/2
+	deltR = colorRGB1[0] - colorRGB2[0]
+	deltG = colorRGB1[1] - colorRGB2[1]
+	deltB = colorRGB1[2] - colorRGB2[2]
+	deltC = math.sqrt(2*(deltR^2) + 4* (deltG^2) + 3*(deltB^2) + (r*(deltR^2-deltaB^2))//256)
+	return deltC
+ 
 
+def calculateRGBdiff(averageRGBlist):	
 
 
 # ----------------- 
 def main():
         img = readImageToRGB()
-        avgRGBLine(img)
+        averageRGBlist = avgRGBLine(img)
+        colorRGB1 = np.array((73,111,101))
+        colorRGB2 = np.array((72,109,99))
+        print(calculatediffHelper(colorRGB1,colorRGB2))
 main()
 
 
