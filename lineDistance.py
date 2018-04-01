@@ -31,17 +31,16 @@ def avgRGBLine(imgRGB):
 # ----------------
 # take an RGB value and then return the percentage diff
 def calculatediffHelper(colorRGB1, colorRGB2):
-	r = (colorRGB1[0] + colorRGB2[0])/2
-	deltR = colorRGB1[0] - colorRGB2[0]
-	deltG = colorRGB1[1] - colorRGB2[1]
-	deltB = colorRGB1[2] - colorRGB2[2]
-	interVal = 2*(deltR^2) + 4* (deltG^2) + 3*(deltB^2) + (r*(deltR^2-deltB^2))//256
-	
-	if interVal != 0:
-		deltC = math.sqrt(interval)
-    else:
-		deltc = 0
-    return deltc
+    r = (colorRGB1[0] + colorRGB2[0])/2
+    deltR = colorRGB1[0] - colorRGB2[0]
+    deltG = colorRGB1[1] - colorRGB2[1]
+    deltB = colorRGB1[2] - colorRGB2[2]
+    interVal = 2*(deltR**2) + 4*(deltG**2) + 3*(deltB**2) + (r*(deltR**2-deltB**2))//256
+    if interVal == 0:
+        deltC = 0
+    else: 
+        deltC = math.sqrt(interVal)
+    return deltC
  
 
 def calculateRGBdiff(averageRGBlist):
