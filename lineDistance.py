@@ -38,10 +38,10 @@ def calculatediffHelper(colorRGB1, colorRGB2):
 	interVal = 2*(deltR^2) + 4* (deltG^2) + 3*(deltB^2) + (r*(deltR^2-deltB^2))//256
 	
 	if interVal != 0:
-            deltC = math.sqrt(interval)
-        else:
-            deltc = 0
-        return deltc
+		deltC = math.sqrt(interval)
+    else:
+		deltc = 0
+    return deltc
  
 
 def calculateRGBdiff(averageRGBlist):
