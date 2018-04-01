@@ -22,7 +22,7 @@ def avgRGBLine(imgRGB):
 	for x in range (0, height):
 		sumRGB = np.array((0,0,0))
 		for y in range (BEGINY,ENDY):
-			sumRGB = sumRGB + img[x][y]
+			sumRGB = sumRGB + imgRGB[x][y]
 		print("x value is the ", x)
 		print(sumRGB//(ENDY-BEGINY))
 		print("")
@@ -31,31 +31,19 @@ def avgRGBLine(imgRGB):
 # -----------------
 # test draw 
 def testDraw(imgRGB):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        black = np.array((0,0,0))
+        for x in range(260,270):
+                for y in range(650,1200):
+                        imgRGB[x][y] = black
+                        
+                print(imgRGB[x][y])
+        imgBGR = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2BGR)         
+        cv2.imwrite("photos/color_black.jpg",imgBGR)
 
 
 # ----------------- 
 def main():
-
+        img = readImageToRGB()
+        testDraw(img)
+main()
 
