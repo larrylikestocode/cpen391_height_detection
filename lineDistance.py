@@ -18,15 +18,32 @@ def readImageToRGB():
 def avgRGBLine(imgRGB):
 	height = imgRGB.shape[0]
 	width  = imgRGB.shape[1]
+	avglist[];
 
 	for x in range (0, height):
 		sumRGB = np.array((0,0,0))
 		for y in range (BEGINY,ENDY):
 			sumRGB = sumRGB + imgRGB[x][y]
+		avglist.append(sumRGB//(ENDY-BEGINY))
+
 		print("x value is the ", x)
-		print(sumRGB//(ENDY-BEGINY))
+		print(avglist[0])
+		print(avglist[1])
 		print("")
 		time.sleep(0.5)
+
+
+
+# ----------------- 
+def main():
+        img = readImageToRGB()
+        avgRGBLine(img)
+main()
+
+
+
+
+
 
 # -----------------
 # test draw 
@@ -39,11 +56,3 @@ def testDraw(imgRGB):
                 print(imgRGB[x][y])
         imgBGR = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2BGR)         
         cv2.imwrite("photos/color_black.jpg",imgBGR)
-
-
-# ----------------- 
-def main():
-        img = readImageToRGB()
-        testDraw(img)
-main()
-
