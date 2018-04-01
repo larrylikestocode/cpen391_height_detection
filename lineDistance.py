@@ -35,8 +35,13 @@ def calculatediffHelper(colorRGB1, colorRGB2):
 	deltR = colorRGB1[0] - colorRGB2[0]
 	deltG = colorRGB1[1] - colorRGB2[1]
 	deltB = colorRGB1[2] - colorRGB2[2]
-	deltC = math.sqrt(2*(deltR^2) + 4* (deltG^2) + 3*(deltB^2) + (r*(deltR^2-deltaB^2))//256)
-	return deltC
+	interVal = 2*(deltR^2) + 4* (deltG^2) + 3*(deltB^2) + (r*(deltR^2-deltB^2))//256
+	
+	if interVal != 0:
+            deltC = math.sqrt(interval)
+        else:
+            deltc = 0
+        return deltc
  
 
 def calculateRGBdiff(averageRGBlist):
@@ -44,10 +49,10 @@ def calculateRGBdiff(averageRGBlist):
 	for i in range(0, len(averageRGBlist)-1):
 		deltC = calculatediffHelper(averageRGBlist[i], averageRGBlist[i+1])
 		avgDiffList.append(deltC)
-		return avgDiffList
+	return avgDiffList
 
 def sortRGBDiff(avgDiffList):
-	for in in range (0,len(avgDiffList)):
+	for i in range (0,len(avgDiffList)):
 		print(avgDiffList[i])
 
 
