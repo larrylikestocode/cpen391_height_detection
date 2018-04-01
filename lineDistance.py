@@ -39,13 +39,25 @@ def calculatediffHelper(colorRGB1, colorRGB2):
 	return deltC
  
 
-def calculateRGBdiff(averageRGBlist):	
+def calculateRGBdiff(averageRGBlist):
+	avgDiffList = [];
+	for i in range(0, len(averageRGBlist)-1):
+		deltC = calculatediffHelper(averageRGBlist[i], averageRGBlist[i+1])
+		avgDiffList.append(deltC)
+		return avgDiffList
+
+def sortRGBDiff(avgDiffList):
+	for in in range (0,len(avgDiffList)):
+		print(avgDiffList[i])
+
 
 
 # ----------------- 
 def main():
         img = readImageToRGB()
         averageRGBlist = avgRGBLine(img)
+        avgDiffList = calculateRGBdiff(averageRGBlist)
+        sortRGBDiff(avgDiffList)
         colorRGB1 = np.array((73,111,101))
         colorRGB2 = np.array((72,109,99))
         print(calculatediffHelper(colorRGB1,colorRGB2))
