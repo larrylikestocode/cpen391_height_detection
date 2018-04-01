@@ -51,8 +51,16 @@ def calculateRGBdiff(averageRGBlist):
 	return avgDiffList
 
 def sortRGBDiff(avgDiffList):
-	for i in range (0,len(avgDiffList)):
-		print(avgDiffList[i])
+    xList = []
+    for i in range (0,len(avgDiffList)):
+        if(avgDiffList[i] > 2):
+            xList.append(i)
+        print(avgDiffList[i])
+    
+    for j in range(0,len(xList)):
+        img = cv2.line(img,(0,j),(1000,j),(0,0,255),2)
+    
+	
 
 
 
