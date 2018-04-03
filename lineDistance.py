@@ -5,9 +5,9 @@ import math
 # TBD
 # face3 val 
 BEGINX = 0
-BEGINY = 650
+BEGINY = 0
 ENDX = 0
-ENDY = 900
+ENDY = 1000
 THRESHHOLD = 9
 
 # face4 val
@@ -15,9 +15,9 @@ THRESHHOLD = 9
 #BEGINY = 550
 #ENDX = 0
 #ENDY = 650
-THRESHHOLD = 9 #tested
+THRESHHOLD = 3 #tested max for face3.jpg
 
-FILE_NAME = "photos/face4.jpg"
+FILE_NAME = "photos/face3.jpg"
 FACE_CASCADE = cv2.CascadeClassifier('/home/pi/opencv-3.3.0/data/haarcascades/haarcascade_frontalface_default.xml')
 
 # ----------------- 
@@ -36,16 +36,14 @@ def faceRec(fileName):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     faces = FACE_CASCADE.detectMultiScale(gray,1.3,5)
-
-    for(x,y,w,h) in face:    
-        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-    # order beginY endY beginX endX  
-    face_cord.append(x)
-    face_cord.append(x+w)
-    face_cord.append(y)
-    face_cord.append(y+h)
     
-    print("beginCol: " +str(x) +" beginRow: " +str(y)+" endCol: " +str(x+w) +" endRow: " +str(y+h))
+    for(x,y,w,h) in faces:    
+        face_cord.append(x)
+        face_cord.append(x+w)
+        face_cord.append(y)
+        face_cord.append(y+h)
+    if(len(face_cord) == 0):
+        print("No face detected")
     return face_cord
 
 
@@ -57,9 +55,15 @@ def avgRGBLine(imgRGB, faceCord):
     height = imgRGB.shape[0]
     width  = imgRGB.shape[1]
     avglist=[];
-    BEGINY = faceCord[0]
-    ENDY = faceCord[1]
-    for x in range (0, faceCord[3]):
+    if(len(faceCord) != 0):
+        BEGINY = faceCord[0]
+        ENDY = faceCord[1]
+        maxX = faceCord[3]
+    else:
+        maxX = height
+        BEGINY = 0
+        ENDY = width
+    for x in range (0, maxX):
         sumRGB = np.array((0,0,0))
         for y in range (BEGINY,ENDY):
             sumRGB = sumRGB + imgRGB[x][y]
@@ -104,8 +108,6 @@ def sortRGBDiff(avgDiffList,imgRGB):
     cv2.waitKey(0)
     cv2.destroyAllWindows()   
 #    cv2.imwrite("photos/color_line.jpg",imgBGR)
-
-
     return xList
 
 # ----------------- 
