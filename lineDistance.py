@@ -3,30 +3,68 @@ import numpy as np
 import time
 import math 
 # TBD
+# face3 val 
 BEGINX = 0
-BEGINY = 250
+BEGINY = 650
 ENDX = 0
-ENDY = 320
+ENDY = 900
+THRESHHOLD = 9
+
+# face4 val
+#BEGINX = 0
+#BEGINY = 550
+#ENDX = 0
+#ENDY = 650
+THRESHHOLD = 9 #tested
+
+FILE_NAME = "photos/face4.jpg"
+FACE_CASCADE = cv2.CascadeClassifier('/home/pi/opencv-3.3.0/data/haarcascades/haarcascade_frontalface_default.xml')
+
 # ----------------- 
-def readImageToRGB():
-	imgBGR = cv2.imread('photos/face3.jpg')
+def readImageToRGB(fileName):
+	imgBGR = cv2.imread(fileName)
 	imgRGB = cv2.cvtColor(imgBGR, cv2.COLOR_BGR2RGB)
 	return imgRGB
 
 
+
+# ---------------------
+# return a coordinate for finding the recbox of the box
+def faceRec(fileName):
+    face_cord =[]
+    img = cv2.imread(fileName)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    faces = FACE_CASCADE.detectMultiScale(gray,1.3,5)
+
+    for(x,y,w,h) in face:    
+        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    # order beginY endY beginX endX  
+    face_cord.append(x)
+    face_cord.append(x+w)
+    face_cord.append(y)
+    face_cord.append(y+h)
+    
+    print("beginCol: " +str(x) +" beginRow: " +str(y)+" endCol: " +str(x+w) +" endRow: " +str(y+h))
+    return face_cord
+
+
 # -----------------
 # return a list of averge RGB values per line of the image 
-def avgRGBLine(imgRGB):
-	height = imgRGB.shape[0]
-	width  = imgRGB.shape[1]
-	avglist=[];
-
-	for x in range (0, height):
-		sumRGB = np.array((0,0,0))
-		for y in range (BEGINY,ENDY):
-			sumRGB = sumRGB + imgRGB[x][y]
-		avglist.append(sumRGB//(ENDY-BEGINY))
-	return avglist	
+def avgRGBLine(imgRGB, faceCord):
+    global BEGINY
+    global ENDY
+    height = imgRGB.shape[0]
+    width  = imgRGB.shape[1]
+    avglist=[];
+    BEGINY = faceCord[0]
+    ENDY = faceCord[1]
+    for x in range (0, faceCord[3]):
+        sumRGB = np.array((0,0,0))
+        for y in range (BEGINY,ENDY):
+            sumRGB = sumRGB + imgRGB[x][y]
+        avglist.append(sumRGB//(ENDY-BEGINY))
+    return avglist	
 
 # ----------------
 # take an RGB value and then return the percentage diff
@@ -50,26 +88,38 @@ def calculateRGBdiff(averageRGBlist):
 		avgDiffList.append(deltC)
 	return avgDiffList
 
-def sortRGBDiff(avgDiffList):
+def sortRGBDiff(avgDiffList,imgRGB):
     xList = []
     for i in range (0,len(avgDiffList)):
-        if(avgDiffList[i] > 2):
+        if(avgDiffList[i] >THRESHHOLD):
             xList.append(i)
+            imgRGB = cv2.line(imgRGB,(BEGINY,i),(ENDY,i),(0,0,255),2)
         print(avgDiffList[i])
-    
-    for j in range(0,len(xList)):
-        img = cv2.line(img,(0,j),(1000,j),(0,0,255),2)
-    
-	
 
 
+    # print linr has the best difference
+    imgRGB = cv2.rectangle(imgRGB,(BEGINY,0),(ENDY,1200),(255,0,0),2)
+    imgBGR = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2BGR)
+    cv2.imshow('img',imgBGR)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()   
+#    cv2.imwrite("photos/color_line.jpg",imgBGR)
+
+
+    return xList
 
 # ----------------- 
 def main():
-        img = readImageToRGB()
-        averageRGBlist = avgRGBLine(img)
+        img = readImageToRGB(FILE_NAME)
+        
+        faceCord = faceRec(FILE_NAME)
+        
+        averageRGBlist = avgRGBLine(img, faceCord)
+        
         avgDiffList = calculateRGBdiff(averageRGBlist)
-        sortRGBDiff(avgDiffList)
+
+        xList = sortRGBDiff(avgDiffList, img)
+        
         colorRGB1 = np.array((73,111,101))
         colorRGB2 = np.array((72,109,99))
         print(calculatediffHelper(colorRGB1,colorRGB2))
