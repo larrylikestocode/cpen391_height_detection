@@ -15,10 +15,13 @@ ENDY = 1000
 #BEGINY = 550
 #ENDX = 0
 #ENDY = 650
-COLORDIFF_THRESHHOLD = 3 # tested max for face3.jpg
+COLORDIFF_THRESHHOLD = 6 # tested max for face3.jpg
+#COLORDIFF_THRESHHOLD = 3
 FOREHEAD_THRESHHOLD = 85 # TBD
-FILE_NAME = "photos/test_pic27.jpg"
+FILE_NAME = "photos/test_pic41.jpg"
 FACE_CASCADE = cv2.CascadeClassifier('/home/pi/opencv-3.3.0/data/haarcascades/haarcascade_frontalface_default.xml')
+PIXELPERINCH = 22.52588
+#PIXELPERINCH = 22.62588
 
 # ----------------- 
 def readImageToRGB(fileName):
@@ -98,20 +101,27 @@ def calculateRGBdiff(averageRGBlist):
 # Need to modify
 def sortRGBDiff(avgDiffList,imgRGB, face_cord):
     xList = []
-    foreheadLine = face_cord[2]
-    cv2.putText(imgRGB, 'foreheadLine',(face_cord[0],foreheadLine),cv2.FONT_HERSHEY_SIMPLEX,0.3,(255,0,0),1,cv2.LINE_AA)
+    foreheadLine = 0
+    foreheadThreshLine = 0
+    textYval = 0
+    if len(face_cord) != 0:
+        foreheadLine = face_cord[2]
+        foreheadThreshLine = foreheadLine - FOREHEAD_THRESHHOLD
+        textYval = face_cord[0]
+        
+    cv2.putText(imgRGB, 'foreheadLine',(textYval,foreheadLine),cv2.FONT_HERSHEY_SIMPLEX,0.3,(255,0,0),1,cv2.LINE_AA)
     imgRGB = cv2.line(imgRGB,(BEGINY,foreheadLine),(ENDY,foreheadLine),(255,0,0),2)
 
-    cv2.putText(imgRGB, 'forehead threshhold Line',(face_cord[0],foreheadLine-FOREHEAD_THRESHHOLD),cv2.FONT_HERSHEY_SIMPLEX,0.3,(255,0,0),1,cv2.LINE_AA)
-    imgRGB = cv2.line(imgRGB,(BEGINY,foreheadLine-FOREHEAD_THRESHHOLD),(ENDY,foreheadLine-FOREHEAD_THRESHHOLD),(255,0,0),2)
+    cv2.putText(imgRGB, 'forehead threshhold Line',(textYval,foreheadLine-FOREHEAD_THRESHHOLD),cv2.FONT_HERSHEY_SIMPLEX,0.3,(255,0,0),1,cv2.LINE_AA)
+    imgRGB = cv2.line(imgRGB,(BEGINY,foreheadThreshLine),(ENDY,foreheadThreshLine+1),(255,0,0),2)
     
     markXh = foreheadLine
-    for i in range (foreheadLine-FOREHEAD_THRESHHOLD,len(avgDiffList)):
+    for i in range (foreheadThreshLine,len(avgDiffList)):
         colorDiff = avgDiffList[i]
         print(colorDiff)
         # check if the colordiff is above the preset threshhold 
             # check if     
-        if(i <= foreheadLine and i >= foreheadLine-FOREHEAD_THRESHHOLD):
+        if(i <= foreheadLine and i >=foreheadThreshLine ):
             if(colorDiff > COLORDIFF_THRESHHOLD):
                 imgRGB = cv2.line(imgRGB,(BEGINY,i),(ENDY,i),(0,0,255),2)
                 markXh = i
@@ -119,11 +129,11 @@ def sortRGBDiff(avgDiffList,imgRGB, face_cord):
         else:
             markXh = foreheadLine
             break
-#            imgRGB = cv2.line(imgRGB,(BEGINY,i),(ENDY,i),(0,0,255),2)
+#            imgRGB = cv2.line(imgRGB,PIXELPERINCH(BEGINY,i),(ENDY,i),(0,0,255),2)
 
     j = foreheadLine
     markXl = foreheadLine
-    while j >= foreheadLine-FOREHEAD_THRESHHOLD:
+    while j >= foreheadThreshLine:
         j = j -1
         colorDiffL = avgDiffList[j]
         if(colorDiffL > COLORDIFF_THRESHHOLD):
@@ -135,30 +145,39 @@ def sortRGBDiff(avgDiffList,imgRGB, face_cord):
 
         
     heightLinev = (markXl + markXh)//2
-    print("the height of the person is" + str(heightLinev))
-    print("the hight hight is" + str(markXh))
+    if(len(face_cord) != 0):
+        height = 80-(heightLinev/PIXELPERINCH)
+    else:
+        height = 0
+        
+    print("the diff of the person is" + str(heightLinev))
+#    print("the hight hight is" + str(markXh))
+    print("the hight of the personis: " + str(height))
     
-    cv2.putText(imgRGB, 'markedLinehigh',(face_cord[0],markXh),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
+    
+    cv2.putText(imgRGB, 'markedLinehigh',(textYval,markXh),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
     imgRGB = cv2.line(imgRGB,(BEGINY,markXh),(ENDY,markXh),(0,0,255),2)
 
-    cv2.putText(imgRGB, 'markedLineLow',(face_cord[0],markXl),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
+    cv2.putText(imgRGB, 'markedLineLow',(textYval,markXl),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
     imgRGB = cv2.line(imgRGB,(BEGINY,markXl),(ENDY,markXl),(0,0,255),2)
     
-    cv2.putText(imgRGB, 'hight',(face_cord[0],heightLinev),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
+    cv2.putText(imgRGB, 'hight',(textYval,heightLinev),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)    
     imgRGB = cv2.line(imgRGB,(BEGINY,heightLinev),(ENDY,heightLinev),(0,0,255),2)
     
     
     # print linr has the best difference
     imgRGB = cv2.rectangle(imgRGB,(BEGINY,0),(ENDY,1200),(255,0,0),2)
     imgBGR = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2BGR)
-    cv2.imshow('img',imgBGR)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()   
+#    cv2.imshow('img',imgBGR)
+#    cv2.waitKey(0)
+#    cv2.destroyAllWindows()   
 #    cv2.imwrite("photos/color_line.jpg",imgBGR)
-    return xList
+    return height
 
 # ----------------- 
-def main():
+def cameraModule(fileName):
+        global FILE_NAME
+        FILE_NAME = fileName
         img = readImageToRGB(FILE_NAME)
         
         faceCord = faceRec(FILE_NAME)
@@ -167,12 +186,10 @@ def main():
         
         avgDiffList = calculateRGBdiff(averageRGBlist)
 
-        xList = sortRGBDiff(avgDiffList, img,faceCord)
-        
-        colorRGB1 = np.array((73,111,101))
-        colorRGB2 = np.array((72,109,99))
-        print(calculatediffHelper(colorRGB1,colorRGB2))
-main()
+        height = sortRGBDiff(avgDiffList, img,faceCord)
+        return height
+
+#cameraModule(FILE_NAME)
 
 
 
